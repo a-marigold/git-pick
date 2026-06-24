@@ -1,0 +1,93 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.5.1/schema.json",
+
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true
+	},
+
+	"files": {
+		"ignoreUnknown": false
+	},
+	"formatter": {
+		"enabled": false
+	},
+	"linter": {
+		"enabled": true,
+
+		"rules": {
+			"recommended": true,
+
+			"nursery": {
+				"noImpliedEval": "error",
+				"useExpect": "error"
+			},
+			"correctness": {
+				"noUnsafeFinally": "error"
+			},
+			"style": {
+				"noEnum": "error",
+				"noDefaultExport": "error",
+				"noCommonJs": "error",
+
+				"useTemplate": "off",
+				"useBlockStatements": "error",
+
+				"useConsistentBuiltinInstantiation": "error",
+				"useConst": "error",
+
+				"useLiteralEnumMembers": "off",
+
+				"useShorthandFunctionType": "error",
+
+				"useShorthandAssign": "error",
+
+				"useImportType": "error",
+				"useNodejsImportProtocol": "error",
+				"useFilenamingConvention": "error",
+				"useConsistentArrowReturn": "error",
+				"useConsistentTypeDefinitions": {
+					"level": "error",
+					"options": { "style": "type" }
+				}
+			},
+
+			"suspicious": {
+				"noConstEnum": "off",
+				"noAlert": "off",
+				"noImplicitAnyLet": "error",
+				"noPrototypeBuiltins": "info",
+				"noConsole": "error",
+				"noExtraNonNullAssertion": "error",
+				"noExportsInTest": "error",
+				"noConfusingVoidType": "off",
+
+				"noUnusedExpressions": "warn",
+
+				"noLabelVar": "error",
+
+				"noDoubleEquals": "error"
+			},
+			"performance": {
+				"noDelete": "error",
+				"noDynamicNamespaceImportAccess": "error",
+
+				"noUnwantedPolyfillio": "error",
+
+				"useTopLevelRegex": "error"
+			},
+
+			"security": {
+				"noGlobalEval": "error"
+			},
+			"complexity": {
+				"noUselessTernary": "error"
+			}
+		}
+	},
+
+	"assist": {
+		"enabled": false
+	}
+}

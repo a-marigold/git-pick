@@ -1,12 +1,21 @@
 {
-  "name": "git-pick",
-  "module": "index.ts",
-  "type": "module",
-  "private": true,
-  "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  }
+	"name": "git-pick",
+	"author": {
+		"name": "marigold",
+		"url": "https://github.com/a-marigold"
+	},
+	"type": "module",
+	"private": true,
+	"devDependencies": {
+		"@types/bun": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^6"
+	},
+	"dependencies": {
+		"@biomejs/biome": "^2.5.1"
+	},
+	"scripts": {
+		"lint": "biome check"
+	}
 }
