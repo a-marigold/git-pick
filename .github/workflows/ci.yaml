@@ -1,22 +1,23 @@
 name: ci
 
 on:
-        push:
-                branches: '*'
-        pull_request:
-                branches: '*'
+    push:
+      branches: '*'
+    pull_request:
+      branches: '*'
 
 jobs:
-        ci:
-                runs-on: ubuntu-latest
-        steps:
-                - uses: actions/checkout@v4
+  ci:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
 
-                - name: set up bun
-                  uses: oven-sh/setup-bun@v2
+      - name: set up bun
+        uses: oven-sh/setup-bun@v2
 
-                - name: install depdendencies
-                  run: bun install
-
-                - name: run linter
-                  run: bun run lint
+      - name: install depdendencies
+        run: bun install
+      
+      - name: run linter
+        run: bun run lint
