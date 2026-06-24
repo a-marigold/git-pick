@@ -1,6 +1,7 @@
 {
 	"compilerOptions": {
 		"lib": ["ESNext"],
+		"types": ["quickjs-types"],
 		"target": "ESNext",
 		"module": "Preserve",
 		"moduleDetection": "force",
