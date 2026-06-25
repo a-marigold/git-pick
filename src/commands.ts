@@ -9,7 +9,7 @@ export const status = (statusText: string): void => {
 	const textLength = statusText.length;
 
 	const filesStart = statusText.indexOf('\n') + 1; // add 1 to skip `\n` char
-	let output = statusText.slice(BRANCH_INFO_START, filesStart);
+	let output = statusText.slice(BRANCH_INFO_START, filesStart) + '\n';
 
 	const staged: string[] = [];
 	const unstaged: string[] = [];
@@ -116,7 +116,7 @@ export const status = (statusText: string): void => {
 			paths += path + ',';
 		}
 
-		output += ANSI_RESET;
+		output += ANSI_RESET + '\n';
 	}
 
 	const unstagedLength = unstaged.length;
@@ -132,7 +132,7 @@ export const status = (statusText: string): void => {
 			paths += path + ',';
 		}
 
-		output += ANSI_RESET;
+		output += ANSI_RESET + '\n';
 	}
 
 	const untrackedLength = untracked.length;
@@ -147,7 +147,7 @@ export const status = (statusText: string): void => {
 			paths += path + ',';
 		}
 
-		output += ANSI_RESET;
+		output += ANSI_RESET + '\b';
 	}
 
 	print(output);
