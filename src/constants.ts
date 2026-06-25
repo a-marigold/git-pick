@@ -12,5 +12,5 @@ export const BRANCH_INFO_START = 3;
 
 export const ANSI_RESET = '\x1b33[0m';
 
-export const ANSI_RED = '';
-export const ANSI_GREEN = '';
+export const ANSI_RED = '\x1b33[31m';
+export const ANSI_GREEN = '\x1b33[32m';

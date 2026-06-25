@@ -1,4 +1,4 @@
-import { BRANCH_INFO_START } from './constants';
+import { ANSI_GREEN, BRANCH_INFO_START } from './constants';
 
 /**
  * @param statusText Output of `git status --porcelain=v1 -b` command.
@@ -48,7 +48,7 @@ export const status = (statusText: string): void => {
 			const path = statusText.slice(pos, pathEnd);
 
 			staged.push('new: ', path);
-			if (char === 'M') {
+			if (nextChar === 'M') {
 				unstaged.push('mod: ', path);
 			}
 
@@ -89,4 +89,23 @@ export const status = (statusText: string): void => {
 			continue;
 		}
 	}
+
+	let paths = '';
+	let pathIndex = 0;
+
+	output += ANSI_GREEN;
+
+	const stagedLength = staged.length;
+	for (let stagIndex = 0; stagIndex < stagedLength; stagIndex++) {
+		output += ' ' + staged[stagIndex];
+
+		stagIndex++;
+		const path = staged[stagIndex];
+
+		output += path + ' ' + pathIndex + '\n';
+		paths += path;
+	}
+
+	const unstagedLength = unstaged.length;
+	const untrackedLength = untracked.length;
 };
