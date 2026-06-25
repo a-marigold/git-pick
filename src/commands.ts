@@ -1,18 +1,9 @@
-import { popen, exit } from 'std';
-
 import { BRANCH_INFO_START, CharCode } from './constants';
 
-export const status = (): void => {
-	const gitStatusPipe = popen('git status --porcelain=v1 -b', {});
-
-	if (!gitStatusPipe) {
-		print('Failed to execute: git status');
-
-		return exit(1);
-	}
-
-	const statusText = gitStatusPipe.readAsString();
-
+/**
+ * @param statusText Output of `git status --porcelain=v1 -b` command.
+ */
+export const status = (statusText: string): void => {
 	const textLength = statusText.length;
 
 	let paths: string = '';
@@ -20,8 +11,7 @@ export const status = (): void => {
 
 	/**
 	 * `true` when a path of file is being parsed.
-	 *
-	 * `false` when state of file is being parsed.
+	 * `false` when code of file (e.g ` M`, `??`) is being parsed.
 	 */
 	let isPath: boolean = false;
 
@@ -62,7 +52,8 @@ export const status = (): void => {
 			continue;
 		}
 
-		// Skip 4 symbols of the two file codes (e.g ` M`, `??`) and space after them
+		// Skip 4 symbols of the file code (e.g ` M`, `??`) and space after it
+
 		pos += 4;
 
 		lastPathStart = pos;
