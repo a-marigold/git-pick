@@ -1,4 +1,6 @@
-import { ANSI_GREEN, BRANCH_INFO_START } from './constants';
+// TODO: max path's len
+
+import { ANSI_GREEN, ANSI_RED, ANSI_RESET, BRANCH_INFO_START } from './constants';
 
 /**
  * @param statusText Output of `git status --porcelain=v1 -b` command.
@@ -93,7 +95,7 @@ export const status = (statusText: string): void => {
 	let paths = '';
 	let pathIndex = 0;
 
-	output += ANSI_GREEN;
+	output += 'staged\n' + ANSI_GREEN;
 
 	const stagedLength = staged.length;
 	for (let stagIndex = 0; stagIndex < stagedLength; stagIndex++) {
@@ -103,9 +105,28 @@ export const status = (statusText: string): void => {
 		const path = staged[stagIndex];
 
 		output += path + ' ' + pathIndex + '\n';
-		paths += path;
+		paths += path + ',';
 	}
 
+	output += ANSI_RESET + 'unstaged\n' + ANSI_RED;
+
 	const unstagedLength = unstaged.length;
+	for (let unstagIndex = 0; unstagIndex < unstagedLength; unstagIndex++) {
+		output += ' ' + unstaged[unstagIndex];
+		unstagIndex++;
+		const path = unstaged[unstagIndex];
+
+		output += path + ' ' + pathIndex + '\n';
+		paths += path + ',';
+	}
+
+	output += ANSI_RESET + 'untracked\n' + ANSI_RED;
+
 	const untrackedLength = untracked.length;
+	for (let untrackIndex = 0; untrackIndex < untrackedLength; untrackIndex++) {
+		const path = untracked[untrackIndex];
+
+		output += path + ' ' + pathIndex + '\n';
+		paths += path + ',';
+	}
 };
