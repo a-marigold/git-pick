@@ -115,11 +115,13 @@ export const status = (statusText: string): void => {
 
 			paths += path + ',';
 		}
+
+		output += ANSI_RESET;
 	}
 
 	const unstagedLength = unstaged.length;
 	if (unstagedLength) {
-		output += ANSI_RESET + 'unstaged\n' + ANSI_RED;
+		output += 'unstaged\n' + ANSI_RED;
 
 		for (let unstagIndex = 0; unstagIndex < unstagedLength; unstagIndex++) {
 			output += ' ' + unstaged[unstagIndex];
@@ -129,21 +131,24 @@ export const status = (statusText: string): void => {
 			output += path + ' ' + pathIndex + '\n';
 			paths += path + ',';
 		}
+
+		output += ANSI_RESET;
 	}
 
 	const untrackedLength = untracked.length;
 	if (untrackedLength) {
-		output += ANSI_RESET + 'untracked\n' + ANSI_RED;
+		output += 'untracked\n' + ANSI_RED;
 
 		for (let untrackIndex = 0; untrackIndex < untrackedLength; untrackIndex++) {
 			const path = untracked[untrackIndex];
 
 			output += path + ' ' + pathIndex + '\n';
+
 			paths += path + ',';
 		}
-	}
 
-	output += ANSI_RESET;
+		output += ANSI_RESET;
+	}
 
 	print(output);
 };
