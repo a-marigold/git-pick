@@ -59,7 +59,7 @@ export const status = (statusText: string): void => {
 				unstaged.push('mod: ', path);
 			}
 
-			pos = pathEnd;
+			pos = pathEnd + 1;
 
 			continue;
 		}
@@ -85,6 +85,7 @@ export const status = (statusText: string): void => {
 
 		if (nextChar === ' ') {
 			pos += 2;
+
 			const pathEnd = statusText.indexOf('\n', pos);
 			staged.push(
 				char === 'M' ? 'mod: ' : 'del: ',
@@ -96,42 +97,53 @@ export const status = (statusText: string): void => {
 			continue;
 		}
 	}
-
+	// TODO: move ANSI reseting
 	let paths = '';
 	let pathIndex = 0;
 
-	output += 'staged\n' + ANSI_GREEN;
-
 	const stagedLength = staged.length;
-	for (let stagIndex = 0; stagIndex < stagedLength; stagIndex++) {
-		output += ' ' + staged[stagIndex];
+	if (stagedLength) {
+		output += 'staged\n' + ANSI_GREEN;
 
-		stagIndex++;
-		const path = staged[stagIndex];
+		for (let stagIndex = 0; stagIndex < stagedLength; stagIndex++) {
+			output += ' ' + staged[stagIndex];
 
-		output += path + ' ' + pathIndex + '\n';
-		paths += path + ',';
+			stagIndex++;
+			const path = staged[stagIndex];
+
+			output += path + ' ' + pathIndex + '\n';
+
+			paths += path + ',';
+		}
 	}
-
-	output += ANSI_RESET + 'unstaged\n' + ANSI_RED;
 
 	const unstagedLength = unstaged.length;
-	for (let unstagIndex = 0; unstagIndex < unstagedLength; unstagIndex++) {
-		output += ' ' + unstaged[unstagIndex];
-		unstagIndex++;
-		const path = unstaged[unstagIndex];
+	if (unstagedLength) {
+		output += ANSI_RESET + 'unstaged\n' + ANSI_RED;
 
-		output += path + ' ' + pathIndex + '\n';
-		paths += path + ',';
+		for (let unstagIndex = 0; unstagIndex < unstagedLength; unstagIndex++) {
+			output += ' ' + unstaged[unstagIndex];
+			unstagIndex++;
+			const path = unstaged[unstagIndex];
+
+			output += path + ' ' + pathIndex + '\n';
+			paths += path + ',';
+		}
 	}
-
-	output += ANSI_RESET + 'untracked\n' + ANSI_RED;
 
 	const untrackedLength = untracked.length;
-	for (let untrackIndex = 0; untrackIndex < untrackedLength; untrackIndex++) {
-		const path = untracked[untrackIndex];
+	if (untrackedLength) {
+		output += ANSI_RESET + 'untracked\n' + ANSI_RED;
 
-		output += path + ' ' + pathIndex + '\n';
-		paths += path + ',';
+		for (let untrackIndex = 0; untrackIndex < untrackedLength; untrackIndex++) {
+			const path = untracked[untrackIndex];
+
+			output += path + ' ' + pathIndex + '\n';
+			paths += path + ',';
+		}
 	}
+
+	output += ANSI_RESET;
+
+	print(output);
 };
