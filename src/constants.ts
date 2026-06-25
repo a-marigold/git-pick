@@ -3,16 +3,6 @@ export const HELP_TEXT = `usage:
  status\tList paths to files with their indexes --- gpick status
  add\tAdd files of provided indexes to staging area --- gpick add 1 2 3`;
 
-export const enum CharCode {
-	'\n' = 10,
-	Space = 32,
-	'\t' = 9,
-
-	'M' = 77,
-
-	'?' = 63,
-}
-
 export const GIT_STATUS_COMMAND = 'git status --porcelain=v1 -b';
 
 /**
