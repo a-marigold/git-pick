@@ -10,7 +10,7 @@ if (scriptArgs.length === 1) {
 	exit(1);
 }
 
-const command = scriptArgs[0];
+const command = scriptArgs[1];
 
 if (command === 'status') {
 	const statusText = popen(GIT_STATUS_COMMAND, 'r');
@@ -29,5 +29,5 @@ if (command === 'status') {
 	exit(0);
 } else {
 	print('Unknown command.\n\n' + HELP_TEXT);
-	exit(0);
+	exit(1);
 }
