@@ -19,15 +19,6 @@ export const status = (statusText: string): void => {
 	while (pos < textLength) {
 		const char = statusText[pos];
 
-		if (char === ' ') {
-			pos++;
-			unstaged.push(statusText[pos] === 'M' ? 'mod: ' : 'del: ');
-
-			pos += 3;
-
-			continue;
-		}
-
 		if (char === '?') {
 			pos += 3;
 
@@ -40,8 +31,22 @@ export const status = (statusText: string): void => {
 		}
 
 		pos++;
-
 		const nextChar = statusText[pos];
+
+		if (char === ' ') {
+			pos += 2;
+
+			const pathEnd = statusText.indexOf('\n', pos);
+
+			unstaged.push(
+				nextChar === 'M' ? 'mod: ' : 'del: ',
+				statusText.slice(pos, pathEnd),
+			);
+
+			pos = pathEnd + 1;
+
+			continue;
+		}
 
 		if (char === 'A') {
 			pos += 2;
