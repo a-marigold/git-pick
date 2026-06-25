@@ -6,56 +6,87 @@ import { BRANCH_INFO_START } from './constants';
 export const status = (statusText: string): void => {
 	const textLength = statusText.length;
 
-	let paths: string = '';
-	let output: string = '';
+	const filesStart = statusText.indexOf('\n') + 1; // add 1 to skip `\n` char
+	let output = statusText.slice(BRANCH_INFO_START, filesStart);
 
-	/**
-	 * `true` when a path of file is being parsed.
-	 * `false` when code of file (e.g ` M`, `??`) is being parsed.
-	 */
-	let isPath: boolean = false;
+	const staged: string[] = [];
+	const unstaged: string[] = [];
+	const untracked: string[] = [];
 
-	/**
-	 * `true` when branch info is being parsed.
-	 */
-	let isBranch: boolean = true;
-
-	let pathIndex = 0;
-
-	let lastPathStart = 0;
-
-	let pos = BRANCH_INFO_START;
+	let pos = filesStart;
 	while (pos < textLength) {
 		const char = statusText[pos];
 
-		if (isBranch) {
-			if (char === '\n') {
-				output += statusText.slice(BRANCH_INFO_START, pos);
-			}
-
+		if (char === ' ') {
 			pos++;
+			unstaged.push(statusText[pos] === 'M' ? 'mod: ' : 'del: ');
+
+			pos += 3;
+
 			continue;
 		}
 
-		if (isPath) {
-			if (char === '\n') {
-				isPath = false;
+		if (char === '?') {
+			pos += 3;
 
-				const path = statusText.slice(lastPathStart, pos);
+			const pathEnd = statusText.indexOf('\n', pos);
+			untracked.push(statusText.slice(pos, pathEnd));
 
-				paths += path + ',';
+			pos = pathEnd + 1;
 
-				output += path + ' ' + pathIndex + '\n';
-			}
-
-			pos++;
 			continue;
 		}
 
-		// Skip 4 symbols of the file code (e.g ` M`, `??`) and space after it
+		pos++;
 
-		pos += 4;
+		const nextChar = statusText[pos];
 
-		lastPathStart = pos;
+		if (char === 'A') {
+			pos += 2;
+			const pathEnd = statusText.indexOf('\n', pos);
+
+			const path = statusText.slice(pos, pathEnd);
+
+			staged.push('new: ', path);
+			if (char === 'M') {
+				unstaged.push('mod: ', path);
+			}
+
+			pos = pathEnd;
+
+			continue;
+		}
+
+		if (char === 'R') {
+			pos += 2;
+
+			const pathStart = statusText.indexOf('>', pos) + 2; // add 2 to skip space
+			const pathEnd = statusText.indexOf('\n', pathStart);
+
+			const path = statusText.slice(pathStart, pathEnd);
+
+			staged.push('rnm: ', path);
+
+			if (nextChar === 'M') {
+				unstaged.push('rnm: ', path);
+			}
+
+			pos = pathEnd + 1;
+
+			continue;
+		}
+
+		if (nextChar === ' ') {
+			pos += 2;
+			const pathEnd = statusText.indexOf('\n', pos);
+			staged.push(
+				char === 'M' ? 'mod: ' : 'del: ',
+				statusText.slice(pos, pathEnd),
+			);
+
+			pos = pathEnd;
+
+			continue;
+		}
 	}
 };

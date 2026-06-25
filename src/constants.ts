@@ -9,3 +9,8 @@ export const GIT_STATUS_COMMAND = 'git status --porcelain=v1 -b';
  * Position in output of `git status --porcelain -b` when branch info starts.
  */
 export const BRANCH_INFO_START = 3;
+
+export const ANSI_RESET = '\x1b33[0m';
+
+export const ANSI_RED = '';
+export const ANSI_GREEN = '';
