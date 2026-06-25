@@ -10,7 +10,7 @@ export const GIT_STATUS_COMMAND = 'git status --porcelain=v1 -b';
  */
 export const BRANCH_INFO_START = 3;
 
-export const ANSI_RESET = '\x1b33[0m';
+export const ANSI_RESET = '\x1b[0m';
 
-export const ANSI_RED = '\x1b33[31m';
-export const ANSI_GREEN = '\x1b33[32m';
+export const ANSI_RED = '\x1b[31m';
+export const ANSI_GREEN = '\x1b[32m';
