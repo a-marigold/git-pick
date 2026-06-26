@@ -7,8 +7,8 @@
 	"type": "module",
 	"private": true,
 	"devDependencies": {
-		"@types/bun": "latest",
-		"quickjs-types": "^1.2.0"
+		"@txikijs/types": "^26.6.0",
+		"@types/bun": "latest"
 	},
 	"peerDependencies": {
 		"typescript": "^6"
@@ -19,6 +19,6 @@
 	},
 	"scripts": {
 		"lint": "biome check",
-		"build": "bun build ./src/index.ts --outdir ./dist --format esm --target bun"
+		"build": "bun build ./src/index.ts --outdir ./dist --format esm --target bun --external qjs:std --external qjs:os --minify-whitespace --minify-identifiers"
 	}
 }
