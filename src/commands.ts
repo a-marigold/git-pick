@@ -1,11 +1,10 @@
-// TODO: max path's len
-
 import { ANSI_GREEN, ANSI_RED, ANSI_RESET, BRANCH_INFO_START } from './constants';
+import type { StatusResult } from './types';
 
 /**
  * @param statusText Output of `git status --porcelain=v1 -b` command.
  */
-export const status = (statusText: string): void => {
+export const status = (statusText: string): StatusResult => {
 	const textLength = statusText.length;
 
 	const filesStart = statusText.indexOf('\n') + 1; // add 1 to skip `\n` char
@@ -67,7 +66,7 @@ export const status = (statusText: string): void => {
 		if (char === 'R') {
 			pos += 2;
 
-			const pathStart = statusText.indexOf('>', pos) + 2; // add 2 to skip space
+			const pathStart = statusText.indexOf('>', pos) + 2; // Add 2 to skip space
 			const pathEnd = statusText.indexOf('\n', pathStart);
 
 			const path = statusText.slice(pathStart, pathEnd);
@@ -97,7 +96,7 @@ export const status = (statusText: string): void => {
 			continue;
 		}
 	}
-	// TODO: move ANSI reseting
+
 	let paths = '';
 	let pathIndex = 0;
 
@@ -150,5 +149,8 @@ export const status = (statusText: string): void => {
 		output += ANSI_RESET + '\b';
 	}
 
-	print(output);
+	return {
+		paths,
+		output,
+	};
 };
