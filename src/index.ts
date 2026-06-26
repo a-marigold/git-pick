@@ -1,5 +1,6 @@
 import { status } from './commands';
-import { GIT_STATUS_COMMAND, HELP_TEXT } from './constants';
+import { GIT_GET_DIR_CMD, GIT_STATUS_CMD, HELP_TEXT, STATUS_RESULT_PATH } from './constants';
+import { spawnCmd } from './utils';
 
 const argv = tjs.args;
 
@@ -10,37 +11,41 @@ if (argv.length === 1) {
 }
 
 const command = argv[1];
+
 if (command === 'status') {
-	const { stdout, stderr, wait } = tjs.spawn(GIT_STATUS_COMMAND, {
-		stdout: 'pipe',
-		stderr: 'pipe',
-	});
+	const gitStatusResult = await spawnCmd(GIT_STATUS_CMD);
 
-	Promise.all([
-		(stdout as tjs.ProcessReadableStream).text(),
+	const error = gitStatusResult[1];
 
-		(stderr as tjs.ProcessReadableStream).text(),
+	if (error) {
+		console.log(error);
 
-		wait(),
-	]).then((result) => {
-		const error = result[1];
+		tjs.exit(1);
+	} else {
+		const { paths, output } = status(gitStatusResult[0]);
+
+		const gitDirResult = await spawnCmd(GIT_GET_DIR_CMD);
+
+		const error = gitDirResult[1];
 
 		if (error) {
 			console.log(error);
 
 			tjs.exit(1);
 		} else {
-			const statusResult = status(result[0]);
+			tjs.writeFile(gitDirResult[0] + STATUS_RESULT_PATH, paths);
 
-			console.log(statusResult.output);
+			console.log(output);
 
 			tjs.exit(0);
 		}
-	});
+	}
 } else if (command === '-h') {
 	console.log(HELP_TEXT);
+
 	tjs.exit(0);
 } else {
 	console.log('Unknown command.\n\n' + HELP_TEXT);
+
 	tjs.exit(1);
 }
