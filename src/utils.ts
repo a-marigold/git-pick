@@ -4,16 +4,18 @@
  * @param cmd Command with arts to be executed.
  *
  * @returns Promise with tuple: first element is text of `stdout`, second is text of `stderr` and third is {@link tjs.ProcessStatus}.
+ *
  */
+
 export const spawnCmdOut = (cmd: string[]): Promise<[string, string, tjs.ProcessStatus]> => {
-	const { stdout, stderr, wait } = tjs.spawn(cmd, { stdout: 'pipe', stderr: 'pipe' });
+	const process = tjs.spawn(cmd, { stdout: 'pipe', stderr: 'pipe' });
 
 	return Promise.all([
-		(stdout as tjs.ProcessReadableStream).text(),
+		(process.stdout as tjs.ProcessReadableStream).text(),
 
-		(stderr as tjs.ProcessReadableStream).text(),
+		(process.stderr as tjs.ProcessReadableStream).text(),
 
-		wait(),
+		process.wait(),
 	]);
 };
 
@@ -27,7 +29,7 @@ export const spawnCmdOut = (cmd: string[]): Promise<[string, string, tjs.Process
  * @returns Promise with tuple: first element is text of `stderr`, second is {@link tjs.ProcessStatus}.
  */
 export const spawnCmdErr = (cmd: string[]): Promise<[string, tjs.ProcessStatus]> => {
-	const { stderr, wait } = tjs.spawn(cmd, { stderr: 'pipe' });
+	const process = tjs.spawn(cmd, { stderr: 'pipe' });
 
-	return Promise.all([(stderr as tjs.ProcessReadableStream).text(), wait()]);
+	return Promise.all([(process.stderr as tjs.ProcessReadableStream).text(), process.wait()]);
 };
