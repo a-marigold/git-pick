@@ -164,7 +164,11 @@ export const status = (statusText: string): StatusResult => {
  *
  * @returns {AddResult} {@link AddResult}.
  */
-export const add = (argv: string[], pathsArgvStart: number, paths: string[]): AddResult<string> => {
+export const add = (
+	argv: typeof tjs.args,
+	pathsArgvStart: number,
+	paths: string[],
+): AddResult<string> => {
 	const cmd: AddResult<string>['cmd'] = ['git', 'add', '--'];
 
 	const pathsLength = paths.length;
