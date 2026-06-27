@@ -1,16 +1,13 @@
-import { SPAWN_GIT_CMD_OPTIONS } from './constants';
-
 /**
- * #### Result incldes promise of {@link tjs.Process.wait}, so child process is guaranted to exit.
+ * #### Result includes promise of {@link tjs.Process.wait}, so child process is guaranted to exit.
  *
- * @param command Command with arts to be executed.
+ * @param cmd Command with arts to be executed.
  *
- * @returns Tuple with promises: where first element is text of `stdout`, second is text of `stderr` and third is {@link tjs.ProcessStatus} of process.
+ * @returns Promise with tuple: first element is text of `stdout`, second is text of `stderr` and third is {@link tjs.ProcessStatus}.
  */
-export const spawnCmd = (command: string[]): Promise<[string, string, tjs.ProcessStatus]> => {
-	const { stdout, stderr, wait } = tjs.spawn(command, SPAWN_GIT_CMD_OPTIONS);
+export const spawnCmdOut = (cmd: string[]): Promise<[string, string, tjs.ProcessStatus]> => {
+	const { stdout, stderr, wait } = tjs.spawn(cmd, { stdout: 'pipe', stderr: 'pipe' });
 
-	// Assertions are not dangerous 'cause `SPAWN_GIT_CMD_OPTIONS` include `stdout` and `stderr`
 	return Promise.all([
 		(stdout as tjs.ProcessReadableStream).text(),
 
@@ -18,4 +15,19 @@ export const spawnCmd = (command: string[]): Promise<[string, string, tjs.Proces
 
 		wait(),
 	]);
+};
+
+/**
+ * #### Result includes promise of {@link tjs.Process.wait}, so child process is guaranted to exit.
+ *
+ * #### Unlike {@link spawnCmdOut}, does not handle `stdout`.
+ *
+ * @param cmd
+ *
+ * @returns Promise with tuple: first element is text of `stderr`, second is {@link tjs.ProcessStatus}.
+ */
+export const spawnCmdErr = (cmd: string[]): Promise<[string, tjs.ProcessStatus]> => {
+	const { stderr, wait } = tjs.spawn(cmd, { stderr: 'pipe' });
+
+	return Promise.all([(stderr as tjs.ProcessReadableStream).text(), wait()]);
 };
