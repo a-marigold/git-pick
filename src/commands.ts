@@ -1,4 +1,4 @@
-import { ANSI_GREEN, ANSI_RED, ANSI_RESET, BRANCH_INFO_START } from './constants';
+import { ANSI_GREEN, ANSI_RED, ANSI_RESET, BRANCH_INFO_START, NULL_TERMINATOR } from './constants';
 import type { AddResult, StatusResult } from './types';
 
 /**
@@ -7,21 +7,22 @@ import type { AddResult, StatusResult } from './types';
 export const status = (statusText: string): StatusResult => {
 	const textLength = statusText.length;
 
-	const filesStart = statusText.indexOf('\n') + 1; // add 1 to skip `\n` char
-	let output = statusText.slice(BRANCH_INFO_START, filesStart) + '\n';
+	const branchEnd = statusText.indexOf(NULL_TERMINATOR);
+
+	let output = statusText.slice(BRANCH_INFO_START, branchEnd) + '\n\n';
 
 	const staged: string[] = [];
 	const unstaged: string[] = [];
 	const untracked: string[] = [];
 
-	let pos = filesStart;
+	let pos = branchEnd + 1;
 	while (pos < textLength) {
 		const char = statusText[pos];
 
 		if (char === '?') {
 			pos += 3;
 
-			const pathEnd = statusText.indexOf('\n', pos);
+			const pathEnd = statusText.indexOf(NULL_TERMINATOR, pos);
 			untracked.push(statusText.slice(pos, pathEnd));
 
 			pos = pathEnd + 1;
@@ -35,7 +36,7 @@ export const status = (statusText: string): StatusResult => {
 		if (char === ' ') {
 			pos += 2;
 
-			const pathEnd = statusText.indexOf('\n', pos);
+			const pathEnd = statusText.indexOf(NULL_TERMINATOR, pos);
 
 			unstaged.push(
 				nextChar === 'M' ? 'mod: ' : 'del: ',
@@ -49,8 +50,8 @@ export const status = (statusText: string): StatusResult => {
 
 		if (char === 'A') {
 			pos += 2;
-			const pathEnd = statusText.indexOf('\n', pos);
 
+			const pathEnd = statusText.indexOf(NULL_TERMINATOR, pos);
 			const path = statusText.slice(pos, pathEnd);
 
 			staged.push('new: ', path);
@@ -66,8 +67,8 @@ export const status = (statusText: string): StatusResult => {
 		if (char === 'R') {
 			pos += 2;
 
-			const pathStart = statusText.indexOf('>', pos) + 2; // Add 2 to skip space
-			const pathEnd = statusText.indexOf('\n', pathStart);
+			const pathStart = statusText.indexOf(NULL_TERMINATOR, pos) + 1;
+			const pathEnd = statusText.indexOf(NULL_TERMINATOR, pathStart);
 
 			const path = statusText.slice(pathStart, pathEnd);
 
@@ -83,7 +84,7 @@ export const status = (statusText: string): StatusResult => {
 		if (nextChar === ' ') {
 			pos += 2;
 
-			const pathEnd = statusText.indexOf('\n', pos);
+			const pathEnd = statusText.indexOf(NULL_TERMINATOR, pos);
 			staged.push(
 				char === 'M' ? 'mod: ' : 'del: ',
 				statusText.slice(pos, pathEnd),
