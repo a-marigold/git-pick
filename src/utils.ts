@@ -33,3 +33,11 @@ export const spawnCmdErr = (cmd: string[]): Promise<[string, tjs.ProcessStatus]>
 
 	return Promise.all([(process.stderr as tjs.ProcessReadableStream).text(), process.wait()]);
 };
+
+/**
+ * @param code
+ *
+ * @returns `code` wrapped in ANSI styles to create markdown-like inline code effect.s
+ */
+export const styleInlineCode = (code: string) =>
+	'\x1b[2m\x1b[59m\x1b[37m' + code + '\x1b[39m\x1b[49m\x1b[22m';

@@ -1,12 +1,16 @@
+import { styleInlineCode } from './utils';
+// TODO: add docs link
 export const HELP_TEXT = `usage:
- -h\tPrint help --- gpick -h
- status\tList paths to files with their indexes --- gpick status
- add\tAdd files of provided indexes to staging area --- gpick add 1 2 3`;
+ -h      Print help.                             ${styleInlineCode('gpick -h')}
+ status  List paths to files with their indexes. ${styleInlineCode('gpick status')}
+ add     Add files of provided indexes           ${styleInlineCode('gpick add 1 2 3')}
+         to staging area.
+`;
 
 /**
  * Used with `exec` to provide status info to `status` command.
  */
-export const GIT_STATUS_CMD = ['git', 'status', '--porcelain=v1', '-b'];
+export const GIT_STATUS_CMD = ['git', 'status', '--porcelain=v1', '-b', '-z'];
 
 /**
  * Outputs path to `.git` dir.
@@ -14,6 +18,8 @@ export const GIT_STATUS_CMD = ['git', 'status', '--porcelain=v1', '-b'];
  */
 
 export const GIT_GET_DIR_CMD = ['git', 'rev-parse', '--git-dir'];
+
+export const NULL_TERMINATOR = String.fromCharCode(0);
 
 /**
  * Position in output of `git status --porcelain -b` when branch info starts.
