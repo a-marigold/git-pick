@@ -1,5 +1,5 @@
 import { ANSI_GREEN, ANSI_RED, ANSI_RESET, BRANCH_INFO_START } from './constants';
-import type { StatusResult } from './types';
+import type { AddResult, StatusResult } from './types';
 
 /**
  * @param statusText Output of `git status --porcelain=v1 -b` command.
@@ -153,4 +153,51 @@ export const status = (statusText: string): StatusResult => {
 		paths,
 		output,
 	};
+};
+
+/**
+ * #### Validates path indexes from `argv` and creates {@link AddResult.cmd} from them.
+ *
+ * @param argv `argv` of process. It is not a prepared mapping for performance.
+ * @param pathsArgvStart Index in `argv` from which to start paths handling. Used to skip non contentfull args.
+ * @param paths Array with paths received from {@link status} command.
+ *
+ * @returns {AddResult} {@link AddResult}.
+ */
+export const add = (argv: string[], pathsArgvStart: number, paths: string[]): AddResult<string> => {
+	const cmd: AddResult<string>['cmd'] = ['git', 'add', '--'];
+
+	const pathsLength = paths.length;
+
+	const argvLength = argv.length;
+
+	for (let argIndex = pathsArgvStart; argIndex < argvLength; argIndex++) {
+		const arg = argv[argIndex];
+
+		let pathStart = '"';
+
+		let argPos = 0;
+		if (arg[0] === '!') {
+			argPos++;
+			pathStart += '!';
+		}
+
+		const pathIndex = Number(arg.slice(argPos));
+
+		if (pathIndex) {
+			if (pathIndex < pathsLength) {
+				cmd.push(pathStart + paths[pathIndex] + '"');
+				continue;
+			}
+
+			return {
+				cmd: [],
+				error: `Index ${pathIndex} is out of maximum path index.\nMaximum path index is ${pathsLength - 1}`,
+			};
+		}
+
+		return { cmd: [], error: `Invalid path index ${arg}` };
+	}
+
+	return { cmd, error: '' };
 };

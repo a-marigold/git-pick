@@ -15,8 +15,6 @@ export const GIT_STATUS_CMD = ['git', 'status', '--porcelain=v1', '-b'];
 
 export const GIT_GET_DIR_CMD = ['git', 'rev-parse', '--git-dir'];
 
-export const SPAWN_GIT_CMD_OPTIONS: tjs.ProcessOptions = { stdout: 'pipe', stderr: 'pipe' };
-
 /**
  * Position in output of `git status --porcelain -b` when branch info starts.
  */
