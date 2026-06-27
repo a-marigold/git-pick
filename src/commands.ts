@@ -72,11 +72,9 @@ export const status = (statusText: string): StatusResult => {
 			const path = statusText.slice(pathStart, pathEnd);
 
 			staged.push('rnm: ', path);
-
 			if (nextChar === 'M') {
 				unstaged.push('rnm: ', path);
 			}
-
 			pos = pathEnd + 1;
 
 			continue;
@@ -111,8 +109,9 @@ export const status = (statusText: string): StatusResult => {
 			const path = staged[stagIndex];
 
 			output += path + ' ' + pathIndex + '\n';
-
 			paths += path + ',';
+
+			pathIndex++;
 		}
 
 		output += ANSI_RESET + '\n';
@@ -129,6 +128,8 @@ export const status = (statusText: string): StatusResult => {
 
 			output += path + ' ' + pathIndex + '\n';
 			paths += path + ',';
+
+			pathIndex++;
 		}
 
 		output += ANSI_RESET + '\n';
@@ -144,6 +145,8 @@ export const status = (statusText: string): StatusResult => {
 			output += path + ' ' + pathIndex + '\n';
 
 			paths += path + ',';
+
+			pathIndex++;
 		}
 
 		output += ANSI_RESET + '\b';
