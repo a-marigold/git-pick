@@ -21,26 +21,32 @@ export const init = async (argv: typeof tjs.args): Promise<void> => {
 			console.log(gitStatusError);
 
 			tjs.exit(1);
-		} else {
-			const { paths, output } = status(gitStatusResult[0]);
-
-			const gitDirResult = await spawnCmdOut(GIT_GET_DIR_CMD);
-
-			const gitDirError = gitDirResult[1];
-
-			if (gitDirError) {
-				console.log(gitDirError);
-
-				tjs.exit(1);
-			} else {
-				tjs.writeFile(gitDirResult[0] + STATUS_RESULT_PATH, paths);
-
-				console.log(output);
-
-				tjs.exit(0);
-			}
 		}
-	} else if (command === 'add') {
+
+		const { paths, output } = status(gitStatusResult[0]);
+
+		const gitDirResult = await spawnCmdOut(GIT_GET_DIR_CMD);
+
+		const gitDirError = gitDirResult[1];
+
+		if (gitDirError) {
+			console.log(gitDirError);
+
+			tjs.exit(1);
+		}
+
+		await tjs.writeFile(
+			// slice not to include `\n`
+			gitDirResult[0].slice(0, -1) + STATUS_RESULT_PATH,
+			paths,
+		);
+
+		console.log(output);
+
+		tjs.exit(0);
+	}
+
+	if (command === 'add') {
 		const gitDirResult = await spawnCmdOut(GIT_GET_DIR_CMD);
 
 		const gitDirError = gitDirResult[1];
@@ -52,7 +58,6 @@ export const init = async (argv: typeof tjs.args): Promise<void> => {
 		} else {
 			const paths = new TextDecoder()
 				.decode(await tjs.readFile(gitDirResult[0] + STATUS_RESULT_PATH))
-
 				.split(',');
 
 			const { cmd, error: addError } = add(argv, 2, paths);
@@ -76,12 +81,15 @@ export const init = async (argv: typeof tjs.args): Promise<void> => {
 	} else if (command === '-h') {
 		console.log(HELP_TEXT);
 
-		tjs.exit(0);
-	} else {
-		console.log('Unknown command.\n\n' + HELP_TEXT);
+	if (command === '-h') {
+		console.log(help());
 
-		tjs.exit(1);
+		tjs.exit(0);
 	}
+
+	console.log('Unknown command.\n\n' + help());
+
+	tjs.exit(1);
 };
 
 init(tjs.args);
