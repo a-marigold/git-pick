@@ -27,11 +27,6 @@ export const help = (): string => `usage:
 `;
 
 /**
- *
- *
- *
- *
- *
  * @param statusText Output of `git status --porcelain=v1 -b` command.
  */
 export const status = (statusText: string): StatusResult => {
@@ -198,7 +193,7 @@ export const status = (statusText: string): StatusResult => {
 			stagIndex++;
 			const path = staged[stagIndex];
 
-			output += path + ' ' + '\n';
+			output += path + '\n';
 			paths += path + ',';
 
 			pathIndex++;
@@ -216,7 +211,7 @@ export const status = (statusText: string): StatusResult => {
 			unstagIndex++;
 			const path = unstaged[unstagIndex];
 
-			output += path + ' ' + '\n';
+			output += path + '\n';
 
 			paths += path + ',';
 
@@ -229,17 +224,35 @@ export const status = (statusText: string): StatusResult => {
 	const untrackedLength = untracked.length;
 	if (untrackedLength) {
 		output += 'untracked:\n' + ANSI_RED;
-
 		for (let untrackIndex = 0; untrackIndex < untrackedLength; untrackIndex++) {
 			const path = untracked[untrackIndex];
 
-			output += ' ' + pathIndex + ' ' + path + ' ' + '\n';
+			output += ' ' + pathIndex + ' ' + path + '\n';
 			paths += path + ',';
 
 			pathIndex++;
 		}
 
-		output += ANSI_RESET + '\b';
+		output += ANSI_RESET + '\n';
+	}
+
+	const unmergedLength = unmerged.length;
+	if (unmergedLength) {
+		output += 'unmerged:\n' + ANSI_RED;
+
+		for (let unmergeIndex = 0; unmergeIndex < unmergedLength; unmergeIndex++) {
+			output += ' ' + pathIndex + unmerged[unmergeIndex];
+
+			unmergeIndex++;
+			const path = unmerged[unmergeIndex];
+			output += path + '\n';
+
+			paths += path;
+
+			pathIndex++;
+		}
+
+		output += ANSI_RESET + '\n';
 	}
 
 	return {
