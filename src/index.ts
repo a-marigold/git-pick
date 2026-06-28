@@ -1,18 +1,20 @@
-import { add, status } from './commands';
-import { GIT_GET_DIR_CMD, GIT_STATUS_CMD, HELP_TEXT, STATUS_RESULT_PATH } from './constants';
+import { add, help, status } from './commands';
+import { GIT_GET_DIR_CMD, GIT_STATUS_CMD, STATUS_RESULT_PATH } from './constants';
 import { spawnCmdErr, spawnCmdOut } from './utils';
 
 /**
  * @param argv The first arg must be script name.
  */
+
 export const init = async (argv: typeof tjs.args): Promise<void> => {
 	if (argv.length === 1) {
-		console.log(HELP_TEXT);
+		console.log(help());
 
 		tjs.exit(1);
 	}
 
 	const command = argv[1];
+
 	if (command === 'status') {
 		const gitStatusResult = await spawnCmdOut(GIT_STATUS_CMD);
 		const gitStatusError = gitStatusResult[1];
@@ -78,8 +80,7 @@ export const init = async (argv: typeof tjs.args): Promise<void> => {
 				}
 			}
 		}
-	} else if (command === '-h') {
-		console.log(HELP_TEXT);
+	}
 
 	if (command === '-h') {
 		console.log(help());

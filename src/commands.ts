@@ -17,6 +17,14 @@ import {
 	NULL_TERMINATOR,
 } from './constants';
 import type { AddResult, StatusResult } from './types';
+import { styleInlineCode } from './utils';
+
+export const help = (): string => `usage:
+ -h      Print help.                             ${styleInlineCode('gpick -h')}
+ status  List paths to files with their indexes. ${styleInlineCode('gpick status')}
+ add     Add files of provided indexes           ${styleInlineCode('gpick add 1 2 3')}
+         to staging area.
+`;
 
 /**
  *
