@@ -3,15 +3,27 @@ import {
 	ANSI_RED,
 	ANSI_RESET,
 	BRANCH_INFO_START,
-	DEL_STATUS,
-	MOD_STATUS,
-	NEW_STATUS,
+	A__STATUS,
+	M__STATUS,
+	D__STATUS,
+	R__STATUS,
+	AU_STATUS,
+	AA_STATUS,
+	DD_STATUS,
+	DU_STATUS,
+	UU_STATUS,
+	UA_STATUS,
+	UD_STATUS,
 	NULL_TERMINATOR,
-	REN_STATUS,
 } from './constants';
 import type { AddResult, StatusResult } from './types';
 
 /**
+ *
+ *
+ *
+ *
+ *
  * @param statusText Output of `git status --porcelain=v1 -b` command.
  */
 export const status = (statusText: string): StatusResult => {
@@ -50,7 +62,7 @@ export const status = (statusText: string): StatusResult => {
 			const pathEnd = statusText.indexOf(NULL_TERMINATOR, pos);
 
 			unstaged.push(
-				nextChar === 'M' ? MOD_STATUS : DEL_STATUS,
+				nextChar === 'M' ? M__STATUS : D__STATUS,
 				statusText.slice(pos, pathEnd),
 			);
 
@@ -65,9 +77,9 @@ export const status = (statusText: string): StatusResult => {
 			const pathEnd = statusText.indexOf(NULL_TERMINATOR, pos);
 			const path = statusText.slice(pos, pathEnd);
 
-			staged.push(MOD_STATUS, path);
+			staged.push(M__STATUS, path);
 			if (nextChar === 'M') {
-				unstaged.push(MOD_STATUS, path);
+				unstaged.push(M__STATUS, path);
 			}
 
 			pos = pathEnd + 1;
@@ -81,13 +93,15 @@ export const status = (statusText: string): StatusResult => {
 			const pathEnd = statusText.indexOf(NULL_TERMINATOR, pos);
 			const path = statusText.slice(pos, pathEnd);
 
-			if (nextChar === 'U' || nextChar === 'A') {
+			if (nextChar === 'U') {
 				unmerged.push(AU_STATUS, path);
+			} else if (nextChar === 'A') {
+				unmerged.push(AA_STATUS, path);
 			} else {
-				staged.push(NEW_STATUS, path);
+				staged.push(A__STATUS, path);
 
 				if (nextChar === 'M') {
-					unstaged.push(MOD_STATUS, path);
+					unstaged.push(M__STATUS, path);
 				}
 			}
 
@@ -104,7 +118,7 @@ export const status = (statusText: string): StatusResult => {
 			const path = statusText.slice(pos, pathEnd);
 
 			if (nextChar === ' ') {
-				unstaged.push(DEL_STATUS, path);
+				unstaged.push(D__STATUS, path);
 			} else {
 				unmerged.push(nextChar === 'D' ? DD_STATUS : DU_STATUS, path);
 			}
@@ -138,9 +152,9 @@ export const status = (statusText: string): StatusResult => {
 
 			const path = statusText.slice(pathStart, pathEnd);
 
-			staged.push(REN_STATUS, path);
+			staged.push(R__STATUS, path);
 			if (nextChar === 'M') {
-				unstaged.push(MOD_STATUS, path);
+				unstaged.push(M__STATUS, path);
 			}
 			pos = pathEnd + 1;
 
@@ -153,7 +167,7 @@ export const status = (statusText: string): StatusResult => {
 			const pathEnd = statusText.indexOf(NULL_TERMINATOR, pos);
 
 			staged.push(
-				char === 'M' ? MOD_STATUS : MOD_STATUS,
+				char === 'M' ? M__STATUS : M__STATUS,
 
 				statusText.slice(pos, pathEnd),
 			);
@@ -196,6 +210,7 @@ export const status = (statusText: string): StatusResult => {
 			const path = unstaged[unstagIndex];
 
 			output += path + ' ' + pathIndex + '\n';
+
 			paths += path + ',';
 
 			pathIndex++;
@@ -229,18 +244,22 @@ export const status = (statusText: string): StatusResult => {
 /**
  * #### Validates path indexes from `argv` and creates {@link AddResult.cmd} from them.
  *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  * @param argv `argv` of process. It is not a prepared mapping for performance.
  * @param pathsArgvStart Index in `argv` from which to start paths handling. Used to skip non contentfull args.
  * @param paths Array with paths received from {@link status} command.
  *
  * @returns {AddResult} {@link AddResult}.
  */
-export const add = (
-	argv: typeof tjs.args,
-	pathsArgvStart: number,
-	paths: string[],
-): AddResult<string> => {
-	const cmd: AddResult<string>['cmd'] = ['git', 'add', '--'];
+export const add = (argv: typeof tjs.args, pathsArgvStart: number, paths: string[]): AddResult => {
+	const cmd: AddResult['cmd'] = ['git', 'add', '--'];
 
 	const pathsLength = paths.length;
 
