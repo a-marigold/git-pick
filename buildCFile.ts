@@ -7,7 +7,7 @@ Bun.file('./dist/byteCode.c')
 		Bun.write(
 			'./dist/main.c',
 
-			'#include "../quickjs/gpick-os.h"\n#include "../quickjs/quickjs-libc.h"\n' +
+			'#include "../src/gpick-os.h"\n#include "../src/quickjs-libc.h"\n#define __STDC_FORMAT_MACROS 1\n' +
 				byteCode +
 				`
 static JSContext *JS_NewCustomContext(JSRuntime *rt){
