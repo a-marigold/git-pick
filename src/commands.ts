@@ -193,12 +193,12 @@ export const status = (statusText: string): StatusResult => {
 		output += 'staged:\n' + ANSI_GREEN;
 
 		for (let stagIndex = 0; stagIndex < stagedLength; stagIndex++) {
-			output += staged[stagIndex];
+			output += ' ' + pathIndex + staged[stagIndex];
 
 			stagIndex++;
 			const path = staged[stagIndex];
 
-			output += path + ' ' + pathIndex + '\n';
+			output += path + ' ' + '\n';
 			paths += path + ',';
 
 			pathIndex++;
@@ -212,12 +212,11 @@ export const status = (statusText: string): StatusResult => {
 		output += 'unstaged:\n' + ANSI_RED;
 
 		for (let unstagIndex = 0; unstagIndex < unstagedLength; unstagIndex++) {
-			output += unstaged[unstagIndex];
-
+			output += ' ' + pathIndex + unstaged[unstagIndex];
 			unstagIndex++;
 			const path = unstaged[unstagIndex];
 
-			output += path + ' ' + pathIndex + '\n';
+			output += path + ' ' + '\n';
 
 			paths += path + ',';
 
@@ -234,7 +233,7 @@ export const status = (statusText: string): StatusResult => {
 		for (let untrackIndex = 0; untrackIndex < untrackedLength; untrackIndex++) {
 			const path = untracked[untrackIndex];
 
-			output += path + ' ' + pathIndex + '\n';
+			output += ' ' + pathIndex + ' ' + path + ' ' + '\n';
 			paths += path + ',';
 
 			pathIndex++;
