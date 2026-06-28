@@ -1,4 +1,4 @@
-#include "gpick_os.h"
+#include "gpick-os.h"
 #include <stdlib.h>
 #include <string.h>
 
