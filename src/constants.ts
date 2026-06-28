@@ -37,3 +37,10 @@ export const ANSI_GREEN = '\x1b[32m';
  */
 
 export const STATUS_RESULT_PATH = '/info/.gpicks';
+
+// --- Statuses of files printed by `status` command
+export const MOD_STATUS = ' mod:     ';
+export const NEW_STATUS = ' new:     ';
+export const DEL_STATUS = ' del:     ';
+export const REN_STATUS = ' rename:  ';
+export const COP_STATUS = ' copied:  ';

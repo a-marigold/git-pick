@@ -1,4 +1,14 @@
-import { ANSI_GREEN, ANSI_RED, ANSI_RESET, BRANCH_INFO_START, NULL_TERMINATOR } from './constants';
+import {
+	ANSI_GREEN,
+	ANSI_RED,
+	ANSI_RESET,
+	BRANCH_INFO_START,
+	DEL_STATUS,
+	MOD_STATUS,
+	NEW_STATUS,
+	NULL_TERMINATOR,
+	REN_STATUS,
+} from './constants';
 import type { AddResult, StatusResult } from './types';
 
 /**
@@ -14,6 +24,7 @@ export const status = (statusText: string): StatusResult => {
 	const staged: string[] = [];
 	const unstaged: string[] = [];
 	const untracked: string[] = [];
+	// const unmerged: string[] = [];
 
 	let pos = branchEnd + 1;
 	while (pos < textLength) {
@@ -29,7 +40,6 @@ export const status = (statusText: string): StatusResult => {
 
 			continue;
 		}
-
 		pos++;
 		const nextChar = statusText[pos];
 
@@ -39,7 +49,7 @@ export const status = (statusText: string): StatusResult => {
 			const pathEnd = statusText.indexOf(NULL_TERMINATOR, pos);
 
 			unstaged.push(
-				nextChar === 'M' ? 'mod: ' : 'del: ',
+				nextChar === 'M' ? MOD_STATUS : DEL_STATUS,
 				statusText.slice(pos, pathEnd),
 			);
 
@@ -54,9 +64,9 @@ export const status = (statusText: string): StatusResult => {
 			const pathEnd = statusText.indexOf(NULL_TERMINATOR, pos);
 			const path = statusText.slice(pos, pathEnd);
 
-			staged.push('new: ', path);
+			staged.push(NEW_STATUS, path);
 			if (nextChar === 'M') {
-				unstaged.push('mod: ', path);
+				unstaged.push(MOD_STATUS, path);
 			}
 
 			pos = pathEnd + 1;
@@ -72,9 +82,9 @@ export const status = (statusText: string): StatusResult => {
 
 			const path = statusText.slice(pathStart, pathEnd);
 
-			staged.push('rnm: ', path);
+			staged.push(REN_STATUS, path);
 			if (nextChar === 'M') {
-				unstaged.push('rnm: ', path);
+				unstaged.push(MOD_STATUS, path);
 			}
 			pos = pathEnd + 1;
 
@@ -86,7 +96,7 @@ export const status = (statusText: string): StatusResult => {
 
 			const pathEnd = statusText.indexOf(NULL_TERMINATOR, pos);
 			staged.push(
-				char === 'M' ? 'mod: ' : 'del: ',
+				char === 'M' ? MOD_STATUS : MOD_STATUS,
 				statusText.slice(pos, pathEnd),
 			);
 
@@ -101,10 +111,10 @@ export const status = (statusText: string): StatusResult => {
 
 	const stagedLength = staged.length;
 	if (stagedLength) {
-		output += 'staged\n' + ANSI_GREEN;
+		output += 'staged:\n' + ANSI_GREEN;
 
 		for (let stagIndex = 0; stagIndex < stagedLength; stagIndex++) {
-			output += ' ' + staged[stagIndex];
+			output += staged[stagIndex];
 
 			stagIndex++;
 			const path = staged[stagIndex];
@@ -120,10 +130,11 @@ export const status = (statusText: string): StatusResult => {
 
 	const unstagedLength = unstaged.length;
 	if (unstagedLength) {
-		output += 'unstaged\n' + ANSI_RED;
+		output += 'unstaged:\n' + ANSI_RED;
 
 		for (let unstagIndex = 0; unstagIndex < unstagedLength; unstagIndex++) {
-			output += ' ' + unstaged[unstagIndex];
+			output += unstaged[unstagIndex];
+
 			unstagIndex++;
 			const path = unstaged[unstagIndex];
 
@@ -138,13 +149,12 @@ export const status = (statusText: string): StatusResult => {
 
 	const untrackedLength = untracked.length;
 	if (untrackedLength) {
-		output += 'untracked\n' + ANSI_RED;
+		output += 'untracked:\n' + ANSI_RED;
 
 		for (let untrackIndex = 0; untrackIndex < untrackedLength; untrackIndex++) {
 			const path = untracked[untrackIndex];
 
 			output += path + ' ' + pathIndex + '\n';
-
 			paths += path + ',';
 
 			pathIndex++;
@@ -203,7 +213,6 @@ export const add = (
 				error: `Index ${pathIndex} is out of maximum path index.\nMaximum path index is ${pathsLength - 1}`,
 			};
 		}
-
 		return { cmd: [], error: `Invalid path index ${arg}` };
 	}
 
