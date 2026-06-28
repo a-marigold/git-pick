@@ -24,7 +24,7 @@ export const status = (statusText: string): StatusResult => {
 	const staged: string[] = [];
 	const unstaged: string[] = [];
 	const untracked: string[] = [];
-	// const unmerged: string[] = [];
+	const unmerged: string[] = [];
 
 	let pos = branchEnd + 1;
 	while (pos < textLength) {
@@ -41,6 +41,7 @@ export const status = (statusText: string): StatusResult => {
 			continue;
 		}
 		pos++;
+
 		const nextChar = statusText[pos];
 
 		if (char === ' ') {
@@ -58,13 +59,13 @@ export const status = (statusText: string): StatusResult => {
 			continue;
 		}
 
-		if (char === 'A') {
+		if (char === 'M') {
 			pos += 2;
 
 			const pathEnd = statusText.indexOf(NULL_TERMINATOR, pos);
 			const path = statusText.slice(pos, pathEnd);
 
-			staged.push(NEW_STATUS, path);
+			staged.push(MOD_STATUS, path);
 			if (nextChar === 'M') {
 				unstaged.push(MOD_STATUS, path);
 			}
@@ -72,6 +73,61 @@ export const status = (statusText: string): StatusResult => {
 			pos = pathEnd + 1;
 
 			continue;
+		}
+
+		if (char === 'A') {
+			pos += 2;
+
+			const pathEnd = statusText.indexOf(NULL_TERMINATOR, pos);
+			const path = statusText.slice(pos, pathEnd);
+
+			if (nextChar === 'U' || nextChar === 'A') {
+				unmerged.push(AU_STATUS, path);
+			} else {
+				staged.push(NEW_STATUS, path);
+
+				if (nextChar === 'M') {
+					unstaged.push(MOD_STATUS, path);
+				}
+			}
+
+			pos = pathEnd + 1;
+
+			continue;
+		}
+
+		if (char === 'D') {
+			pos += 2;
+
+			const pathEnd = statusText.indexOf(NULL_TERMINATOR, pos);
+
+			const path = statusText.slice(pos, pathEnd);
+
+			if (nextChar === ' ') {
+				unstaged.push(DEL_STATUS, path);
+			} else {
+				unmerged.push(nextChar === 'D' ? DD_STATUS : DU_STATUS, path);
+			}
+
+			pos += pathEnd + 1;
+
+			continue;
+		}
+
+		if (char === 'U') {
+			pos += 2;
+
+			const pathEnd = statusText.indexOf(NULL_TERMINATOR, pos);
+			const path = statusText.slice(pos, pathEnd);
+
+			unmerged.push(
+				nextChar === 'U'
+					? UU_STATUS
+					: nextChar === 'A'
+						? UA_STATUS
+						: UD_STATUS,
+				path,
+			);
 		}
 
 		if (char === 'R') {
@@ -95,11 +151,12 @@ export const status = (statusText: string): StatusResult => {
 			pos += 2;
 
 			const pathEnd = statusText.indexOf(NULL_TERMINATOR, pos);
+
 			staged.push(
 				char === 'M' ? MOD_STATUS : MOD_STATUS,
+
 				statusText.slice(pos, pathEnd),
 			);
-
 			pos = pathEnd;
 
 			continue;
