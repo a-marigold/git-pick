@@ -5,7 +5,8 @@
 		"module": "Preserve",
 		"moduleDetection": "force",
 		"allowJs": false,
-		"types": ["quickjs-types"],
+		"types": ["quickjs-types", "gpick-os"],
+		"typeRoots": ["./src"],
 		"moduleResolution": "bundler",
 		"allowImportingTsExtensions": false,
 
