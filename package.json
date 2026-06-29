@@ -7,8 +7,8 @@
 	"type": "module",
 	"private": true,
 	"devDependencies": {
-		"@txikijs/types": "^26.6.0",
-		"@types/bun": "latest"
+		"@types/bun": "latest",
+		"quickjs-types": "^1.2.0"
 	},
 	"peerDependencies": {
 		"typescript": "^6"
@@ -19,6 +19,13 @@
 	},
 	"scripts": {
 		"lint": "biome check",
-		"build": "bun build ./src/index.ts --outdir ./dist --format esm --target bun --external qjs:std --external qjs:os --minify-whitespace --minify-identifiers"
+		"build": "bun build ./src/index.ts --outfile./dist/index.js --target bun --external std --external gpick-os --minify-whitespace --minify-identifiers",
+		"buildCFile": "qjsc -c -s -o ./dist/byteCode.c ./dist/index.js && bun run ./buildCFile.ts",
+		"buildLinuxX86": "zig cc -target x86_64-linux-musl \"-DCONFIG_VERSION=\\\"1.0.0\\\"\" ./dist/main.c ./src/gpick-os.c ./quickjs/quickjs.c ./quickjs/quickjs-libc.c ./quickjs/cutils.c ./quickjs/libregexp.c ./quickjs/libunicode.c ./quickjs/dtoa.c -o ./dist/gpick.exe -O3 -s",
+		"buildLinuxARM": "zig cc -target aarch64-linux-musl \"-DCONFIG_VERSION=\\\"1.0.0\\\"\" ./dist/main.c ./src/gpick-os.c ./quickjs/quickjs.c ./quickjs/quickjs-libc.c ./quickjs/cutils.c ./quickjs/libregexp.c ./quickjs/libunicode.c ./quickjs/dtoa.c -o ./dist/gpick.exe -O3 -s",
+		"buildWinX86": "zig cc -target x86_64-windows-gnu \"-DCONFIG_VERSION=\\\"1.0.0\\\"\" ./dist/main.c ./src/gpick-os.c ./quickjs/quickjs.c ./quickjs/quickjs-libc.c ./quickjs/cutils.c ./quickjs/libregexp.c ./quickjs/libunicode.c ./quickjs/dtoa.c -o ./dist/gpick.exe -O3 -s",
+		"buildWinARM": "zig cc -target aarch64-windows-gnu \"-DCONFIG_VERSION=\\\"1.0.0\\\"\" ./dist/main.c ./src/gpick-os.c ./quickjs/quickjs.c ./quickjs/quickjs-libc.c ./quickjs/cutils.c ./quickjs/libregexp.c ./quickjs/libunicode.c ./quickjs/dtoa.c -o ./dist/gpick.exe -O3 -s",
+		"buildMacosX86": "zig cc -target x86_64-macos \"-DCONFIG_VERSION=\\\"1.0.0\\\"\" ./dist/main.c ./src/gpick-os.c ./quickjs/quickjs.c ./quickjs/quickjs-libc.c ./quickjs/cutils.c ./quickjs/libregexp.c ./quickjs/libunicode.c ./quickjs/dtoa.c -o ./dist/gpick.exe -O3 -s",
+		"buildMacosARM": "zig cc -target aarch64-macos \"-DCONFIG_VERSION=\\\"1.0.0\\\"\" ./dist/main.c ./src/gpick-os.c ./quickjs/quickjs.c ./quickjs/quickjs-libc.c ./quickjs/cutils.c ./quickjs/libregexp.c ./quickjs/libunicode.c ./quickjs/dtoa.c -o ./dist/gpick.exe -O3 -s"
 	}
 }
