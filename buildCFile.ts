@@ -24,6 +24,11 @@ JS_AddIntrinsicMapSet(ctx);
 JS_AddIntrinsicTypedArrays(ctx);
 JS_AddIntrinsicPromise(ctx);
 JS_AddIntrinsicWeakRef(ctx);
+{
+extern JSModuleDef *js_init_module_std(JSContext *ctx, const char *name);
+js_init_module_std(ctx, "std");	
+init_gpick_os_module(ctx, "gpick-os"); // 'gpick-os' module
+}
 return ctx;
 }
 int main(int argc, char **argv){
@@ -35,11 +40,6 @@ js_std_init_handlers(rt);
 JS_SetModuleLoaderFunc2(rt, NULL, js_module_loader, js_module_check_attributes, NULL);
 ctx = JS_NewCustomContext(rt);
 js_std_add_helpers(ctx, argc, argv);
-
-js_init_module_std(ctx, "std");
-
-init_gpick_os_module(ctx, "gpick-os"); // 'gpick-os' module
-
 js_std_eval_binary(ctx, qjsc_index, qjsc_index_size, 0);
 js_std_loop(ctx);
 js_std_free_handlers(rt);
