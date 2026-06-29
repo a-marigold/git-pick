@@ -7,7 +7,7 @@ Bun.file('./dist/byteCode.c')
 		Bun.write(
 			'./dist/main.c',
 
-			'#include "../src/gpick-os.h"\n#include "../src/quickjs-libc.h"\n#define __STDC_FORMAT_MACROS 1\n' +
+			'#include "../src/gpick-os.h"\n#include "../quickjs/quickjs-libc.h"\n' +
 				byteCode +
 				`
 static JSContext *JS_NewCustomContext(JSRuntime *rt){
@@ -36,7 +36,9 @@ JS_SetModuleLoaderFunc2(rt, NULL, js_module_loader, js_module_check_attributes, 
 ctx = JS_NewCustomContext(rt);
 js_std_add_helpers(ctx, argc, argv);
 
-init_gpick_os_module(ctx, "os_ext"); // 'gpick-os' module
+js_init_module_std(ctx, "std");
+
+init_gpick_os_module(ctx, "gpick-os"); // 'gpick-os' module
 
 js_std_eval_binary(ctx, qjsc_index, qjsc_index_size, 0);
 js_std_loop(ctx);
