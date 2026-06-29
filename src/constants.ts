@@ -27,7 +27,7 @@ export const ANSI_GREEN = '\x1b[32m';
  * Path to file in `.git` directory of repository where result of `status` command is saved.
  */
 
-export const STATUS_RESULT_PATH = '/info/.gpick';
+export const STATUS_RESULT_PATH = '/.gpick';
 
 // --- Statuses of files printed by `status` command ---
 // Double `_` means space (e.g M__STATUS is `M `).
