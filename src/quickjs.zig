@@ -10,7 +10,7 @@ pub const JSValue = extern struct {
 };
 pub const JSValueConst = JSValue;
 pub const JSCFunction = *const fn (
-    ctx: ?*JSContext,
+    ctx: *JSContext,
     this_val: JSValueConst,
     argc: c_int,
     argv: [*c]JSValueConst,
@@ -47,17 +47,17 @@ pub const JS_NULL = JSValue{
     .tag = JS_TAG_NULL,
 };
 
-pub extern "c" fn JS_IsArray(ctx: ?*JSContext, val: JSValueConst) callconv(.c) c_int;
-pub extern "c" fn JS_GetPropertyStr(ctx: ?*JSContext, this_val: JSValueConst, prop: [*c]const u8) JSValue;
-pub extern "c" fn JS_FreeCString(ctx: ?*JSContext, ptr: [*c]const u8) void;
-pub extern "c" fn JS_GetPropertyUint32(ctx: ?*JSContext, val: JSValueConst, idx: u32) JSValue;
-pub extern "c" fn JS_NewObject(ctx: ?*JSContext) JSValue;
-pub extern "c" fn JS_NewStringLen(ctx: ?*JSContext, str: [*c]const u8, len: usize) JSValue;
-pub extern "c" fn JS_SetPropertyStr(ctx: ?*JSContext, this_val: JSValueConst, prop: [*c]const u8, val: JSValue) c_int;
-pub extern "c" fn JS_SetModuleExportList(ctx: ?*JSContext, m: ?*JSModuleDef, tab: [*c]const JSCFunctionListEntry, len: c_int) c_int;
-pub extern "c" fn JS_NewCModule(ctx: ?*JSContext, name_str: [*c]const u8, init_func: ?*const fn (ctx: ?*JSContext, m: ?*JSModuleDef) callconv(.c) c_int) ?*JSModuleDef;
-pub extern "c" fn JS_AddModuleExportList(ctx: ?*JSContext, m: ?*JSModuleDef, tab: [*c]const JSCFunctionListEntry, len: c_int) c_int;
+pub extern "c" fn JS_IsArray(ctx: *JSContext, val: JSValueConst) callconv(.c) c_int;
+pub extern "c" fn JS_GetPropertyStr(ctx: *JSContext, this_val: JSValueConst, prop: [*c]const u8) JSValue;
+pub extern "c" fn JS_FreeCString(ctx: *JSContext, ptr: [*c]const u8) void;
+pub extern "c" fn JS_GetPropertyUint32(ctx: *JSContext, val: JSValueConst, idx: u32) JSValue;
+pub extern "c" fn JS_NewObject(ctx: *JSContext) JSValue;
+pub extern "c" fn JS_NewStringLen(ctx: *JSContext, str: [*c]const u8, len: usize) JSValue;
+pub extern "c" fn JS_SetPropertyStr(ctx: *JSContext, this_val: JSValueConst, prop: [*c]const u8, val: JSValue) c_int;
+pub extern "c" fn JS_SetModuleExportList(ctx: *JSContext, m: *JSModuleDef, tab: [*c]const JSCFunctionListEntry, len: c_int) c_int;
+pub extern "c" fn JS_NewCModule(ctx: *JSContext, name_str: [*c]const u8, init_func: *const fn (ctx: *JSContext, m: *JSModuleDef) callconv(.c) c_int) *JSModuleDef;
+pub extern "c" fn JS_AddModuleExportList(ctx: *JSContext, m: ?*JSModuleDef, tab: [*c]const JSCFunctionListEntry, len: c_int) c_int;
 
-pub extern "c" fn JS_ToUint32(ctx: ?*JSContext, pres: *u32, val: JSValueConst) c_int;
-pub extern "c" fn JS_FreeValue(ctx: ?*JSContext, v: JSValue) void;
-pub extern "c" fn JS_ToCString(ctx: ?*JSContext, val: JSValueConst) [*c]const u8;
+pub extern "c" fn JS_ToUint32_wrapper(ctx: *JSContext, pres: *u32, val: JSValueConst) c_int;
+pub extern "c" fn JS_ToCString_wrapper(ctx: *JSContext, val: JSValueConst) [*c]const u8;
+pub extern "c" fn JS_FreeValue_wrapper(ctx: *JSContext, v: JSValue) void;
