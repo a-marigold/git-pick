@@ -4,6 +4,24 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
+    const zigLib = b.addLibrary(.{
+        .name = "gpick_os",
+        .root_module = b.createModule(.{
+            .root_source_file = b.path("src/gpick_os.zig"),
+            .target = target,
+            .optimize = optimize,
+            .link_libc = true,
+        }),
+    });
+    zigLib.root_module.addCSourceFiles(.{ .files = &.{
+        "quickjs/quickjs.c",
+        "quickjs/quickjs-libc.c",
+        "quickjs/cutils.c",
+        "quickjs/libregexp.c",
+        "quickjs/libunicode.c",
+        "quickjs/dtoa.c",
+    }, .flags = &.{ "-DCONFIG_VERSION=\"1.0.0\"", "-O3" } });
+
     const exe = b.addExecutable(.{
         .name = "gpick",
         .root_module = b.createModule(.{
@@ -13,24 +31,10 @@ pub fn build(b: *std.Build) void {
         }),
     });
 
-    const zigLib = b.addLibrary(.{ .name = "gpick_os", .root_module = b.createModule(.{
-        .root_source_file = b.path("./src/gpick_os.zig"),
-        .target = target,
-        .optimize = optimize,
-        .link_libc = true,
-    }) });
-
-    exe.root_module.addCSourceFiles(.{ .files = &.{
-        "./dist/main.c",
-        "./quickjs/quickjs.c",
-        "./quickjs/quickjs-libc.c",
-        "./quickjs/cutils.c",
-        "./quickjs/libregexp.c",
-        "./quickjs/libunicode.c",
-        "./quickjs/dtoa.c",
-    }, .flags = &.{ "-O3", "-DCONFIG_VERSION=\"1.0.0\"", "-flto" } });
-
-    exe.root_module.addIncludePath(b.path("./quickjs"));
+    exe.root_module.addCSourceFile(.{
+        .file = b.path("dist/main.c"),
+        .flags = &.{ "-O3", "-flto" },
+    });
 
     exe.root_module.linkLibrary(zigLib);
 
@@ -40,4 +44,10 @@ pub fn build(b: *std.Build) void {
     // }
 
     b.installArtifact(exe);
+
+    const exeCheck = b.addExecutable(.{
+        .name = "gpick",
+        .root_module = exe.root_module,
+    });
+    b.step("check", "Build on save").*.dependOn(&exeCheck.step);
 }
