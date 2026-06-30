@@ -13,20 +13,30 @@ pub fn build(b: *std.Build) void {
             .link_libc = true,
         }),
     });
-    zigLib.root_module.addCSourceFiles(.{ .files = &.{
-        "quickjs/quickjs.c",
-        "quickjs/quickjs-libc.c",
-        "quickjs/cutils.c",
-        "quickjs/libregexp.c",
-        "quickjs/libunicode.c",
-        "quickjs/dtoa.c",
-    }, .flags = &.{ "-DCONFIG_VERSION=\"1.0.0\"", "-O3" } });
+    zigLib.root_module.addCSourceFiles(.{
+        .files = &.{
+            "src/quickjs_wrappers.c",
+            "quickjs/quickjs.c",
+            "quickjs/quickjs-libc.c",
+            "quickjs/cutils.c",
+            "quickjs/libregexp.c",
+            "quickjs/libunicode.c",
+            "quickjs/dtoa.c",
+        },
+        .flags = &.{
+            "-DCONFIG_VERSION=\"1.0.0\"",
+            "-fno-sanitize=undefined",
+            "-O3",
+            "-flto",
+        },
+    });
 
     const exe = b.addExecutable(.{
         .name = "gpick",
         .root_module = b.createModule(.{
             .target = target,
             .optimize = optimize,
+
             .link_libc = true,
         }),
     });
@@ -47,7 +57,7 @@ pub fn build(b: *std.Build) void {
 
     const exeCheck = b.addExecutable(.{
         .name = "gpick",
-        .root_module = exe.root_module,
+        .root_module = zigLib.root_module,
     });
     b.step("check", "Build on save").*.dependOn(&exeCheck.step);
 }
