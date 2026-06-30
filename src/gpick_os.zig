@@ -7,33 +7,36 @@ const allocator = std.heap.smp_allocator;
 var threaded: std.Io.Threaded = undefined;
 var io: std.Io = undefined;
 
-// 'gpick-os' module
-
 fn gpickOsExec(
-    ctx: ?*qjs.JSContext,
+    ctx: *qjs.JSContext,
     thisVal: qjs.JSValueConst,
     argc: c_int,
     argv: [*c]qjs.JSValueConst,
 ) callconv(.c) qjs.JSValue {
     _ = thisVal;
 
-    if (argc < 1 or qjs.JS_IsArray(ctx, argv[0]) == 0) {
+    if (argc < 1) {
+        return qjs.JS_NULL;
+    }
+    const cmd = argv[0];
+
+    if (qjs.JS_IsArray(ctx, cmd) == 0) {
         return qjs.JS_NULL;
     }
 
-    const lenVal = qjs.JS_GetPropertyStr(ctx, argv[0], "length");
-    defer qjs.JS_FreeValue(ctx, lenVal);
+    const cmdLengthJsValue = qjs.JS_GetPropertyStr(ctx, cmd, "length");
+    defer qjs.JS_FreeValue_wrapper(ctx, cmdLengthJsValue);
 
-    var jsArgc: u32 = 0;
+    var cmdLength: u32 = 0;
 
-    _ = qjs.JS_ToUint32(ctx, &jsArgc, lenVal);
+    _ = qjs.JS_ToUint32_wrapper(ctx, &cmdLength, cmdLengthJsValue);
 
-    if (jsArgc < 1) {
+    if (cmdLength < 1) {
         return qjs.JS_NULL;
     }
 
-    var argvList = std.ArrayList([]const u8).empty;
-    defer argvList.deinit(allocator);
+    var zigCmd = std.ArrayList([]const u8).empty;
+    defer zigCmd.deinit(allocator);
 
     var qjsStrings = std.ArrayList([*c]const u8).empty;
     defer {
@@ -44,24 +47,28 @@ fn gpickOsExec(
         qjsStrings.deinit(allocator);
     }
 
-    var i: u32 = 0;
-    while (i < jsArgc) : (i += 1) {
-        const argVal = qjs.JS_GetPropertyUint32(ctx, argv[0], i);
+    var cmdIndex: u32 = 0;
 
-        defer qjs.JS_FreeValue(ctx, argVal);
+    while (cmdIndex < cmdLength) : (cmdIndex += 1) {
+        const argVal = qjs.JS_GetPropertyUint32(ctx, cmd, cmdIndex);
+        defer qjs.JS_FreeValue_wrapper(ctx, argVal);
 
-        const argStr = qjs.JS_ToCString(ctx, argVal);
+        const argStr = qjs.JS_ToCString_wrapper(ctx, argVal);
         if (argStr != null) {
-            qjsStrings.append(allocator, argStr) catch return qjs.JS_NULL;
+            qjsStrings.append(allocator, argStr) catch {
+                return qjs.JS_NULL;
+            };
 
             const zigStr = std.mem.span(argStr);
 
-            argvList.append(allocator, zigStr) catch return qjs.JS_NULL;
+            zigCmd.append(allocator, zigStr) catch {
+                return qjs.JS_NULL;
+            };
         }
     }
 
     const result = std.process.run(allocator, io, .{
-        .argv = argvList.items,
+        .argv = zigCmd.items,
     }) catch {
         return qjs.JS_NULL;
     };
@@ -84,7 +91,9 @@ const gpickOsFuncs = [_]qjs.JSCFunctionListEntry{
         .prop_flags = qjs.JS_PROP_WRITABLE | qjs.JS_PROP_CONFIGURABLE,
 
         .def_type = qjs.JS_DEF_CFUNC,
+
         .magic = 0,
+
         .u = .{
             .func = .{
                 .length = 2,
@@ -95,7 +104,7 @@ const gpickOsFuncs = [_]qjs.JSCFunctionListEntry{
     },
 };
 
-fn gpickOsInit(ctx: ?*qjs.JSContext, m: ?*qjs.JSModuleDef) callconv(.c) c_int {
+fn gpickOsInit(ctx: *qjs.JSContext, m: *qjs.JSModuleDef) callconv(.c) c_int {
     return qjs.JS_SetModuleExportList(
         ctx,
         m,
@@ -104,15 +113,13 @@ fn gpickOsInit(ctx: ?*qjs.JSContext, m: ?*qjs.JSModuleDef) callconv(.c) c_int {
     );
 }
 
-export fn initGpickOsModule(ctx: ?*qjs.JSContext, module_name: [*c]const u8) callconv(.c) ?*qjs.JSModuleDef {
+export fn initGpickOsModule(ctx: *qjs.JSContext, module_name: [*c]const u8) callconv(.c) ?*qjs.JSModuleDef {
     threaded = .init(allocator, .{});
     defer threaded.deinit();
 
     io = threaded.io();
 
     const m = qjs.JS_NewCModule(ctx, module_name, gpickOsInit);
-
-    if (m == null) return null;
 
     _ = qjs.JS_AddModuleExportList(ctx, m, &gpickOsFuncs, gpickOsFuncs.len);
 
