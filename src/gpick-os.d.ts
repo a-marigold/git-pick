@@ -19,6 +19,7 @@ declare module 'gpick-os' {
 	 * @throws `RangeError` when file data is more that 1GB.
 	 * @throws `RangeError` when heap memory is out.
 	 */
+
 	export const readFileSync: (path: string) => string;
 }
 

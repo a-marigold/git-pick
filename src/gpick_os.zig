@@ -56,15 +56,15 @@ fn exec(
         const argValue = qjs.JS_GetPropertyUint32(ctx, cmd, cmdIndex);
         defer qjs.JS_FreeValue_wrapper(ctx, argValue);
 
-        const argStr = qjs.JS_ToCStringLen2(ctx, null, argValue, 0) orelse {
+        const argString = qjs.JS_ToCStringLen2(ctx, null, argValue, 0) orelse {
             return qjs.JS_NULL;
         };
 
-        qjsStrings.append(allocator, argStr) catch {
+        qjsStrings.append(allocator, argString) catch {
             return qjs.JS_NULL;
         };
 
-        zigCmd.append(allocator, std.mem.span(argStr)) catch {
+        zigCmd.append(allocator, std.mem.span(argString)) catch {
             return qjs.JS_NULL;
         };
     }
@@ -117,11 +117,44 @@ fn readFileSync(
     return qjs.JS_NewStringLen(ctx, file.ptr, file.len);
 }
 
-fn gpickOsInit(ctx: *qjs.JSContext, m: *qjs.JSModuleDef) callconv(.c) c_int {
+fn writeFileSync(
+    ctx: *qjs.JSContext,
+    thisVal: qjs.JSValueConst,
+    argc: c_int,
+    argv: [*c]qjs.JSValueConst,
+) callconv(.c) qjs.JSValue {
+    _ = thisVal;
+
+    if (argc < 2) {
+        return qjs.JS_NULL;
+    }
+
+    const filePathString = qjs.JS_ToCStringLen2(ctx, null, argv[0], 0) orelse {
+        return qjs.JS_NULL;
+    };
+    defer qjs.JS_FreeCString(ctx, filePathString);
+
+    const data = qjs.JS_ToCStringLen2(ctx, null, argv[1], 0) orelse {
+        return qjs.JS_NULL;
+    };
+    defer qjs.JS_FreeCString(ctx, data);
+
+    cwd.writeFile(io, .{
+        .sub_path = std.mem.span(filePathString),
+
+        .data = std.mem.span(data),
+    }) catch {
+        return qjs.JS_NULL;
+    };
+
+    return qjs.JS_UNDEFINED;
+}
+
+fn gpickOsInit(ctx: *qjs.JSContext, module: *qjs.JSModuleDef) callconv(.c) c_int {
     _ = qjs.JS_SetModuleExport(
         ctx,
-        m,
-        @constCast("exec"),
+        module,
+        "exec",
         qjs.JS_NewCFunction2(
             ctx,
             exec,
@@ -134,17 +167,28 @@ fn gpickOsInit(ctx: *qjs.JSContext, m: *qjs.JSModuleDef) callconv(.c) c_int {
 
     _ = qjs.JS_SetModuleExport(
         ctx,
-        m,
-        @constCast("readFileSync"),
+        module,
+        "readFileSync",
         qjs.JS_NewCFunction2(
             ctx,
             readFileSync,
             "readFileSync",
-
             1,
-
             .JS_CFUNC_generic,
+            0,
+        ),
+    );
 
+    _ = qjs.JS_SetModuleExport(
+        ctx,
+        module,
+        "writeFileSync",
+        qjs.JS_NewCFunction2(
+            ctx,
+            writeFileSync,
+            "writeFileSync",
+            1,
+            .JS_CFUNC_generic,
             0,
         ),
     );
