@@ -2,10 +2,13 @@ const std = @import("std");
 
 const qjs = @import("quickjs.zig");
 
+const constants = @import("constants.zig");
+
 const allocator = std.heap.smp_allocator;
 
 var threaded: std.Io.Threaded = undefined;
 var io: std.Io = undefined;
+var cwd: std.Io.Dir = undefined;
 
 fn gpickOsExec(
     ctx: *qjs.JSContext,
@@ -53,19 +56,17 @@ fn gpickOsExec(
         const argValue = qjs.JS_GetPropertyUint32(ctx, cmd, cmdIndex);
         defer qjs.JS_FreeValue_wrapper(ctx, argValue);
 
-        const argStr = qjs.JS_ToCStringLen2(ctx, null, argValue, 0);
-
-        if (argStr != null) {
-            qjsStrings.append(allocator, argStr) catch {
-                return qjs.JS_NULL;
-            };
-
-            zigCmd.append(allocator, std.mem.span(argStr)) catch {
-                return qjs.JS_NULL;
-            };
-        } else {
+        const argStr = qjs.JS_ToCStringLen2(ctx, null, argValue, 0) orelse {
             return qjs.JS_NULL;
-        }
+        };
+
+        qjsStrings.append(allocator, argStr) catch {
+            return qjs.JS_NULL;
+        };
+
+        zigCmd.append(allocator, std.mem.span(argStr)) catch {
+            return qjs.JS_NULL;
+        };
     }
 
     const result = std.process.run(allocator, io, .{
@@ -78,12 +79,41 @@ fn gpickOsExec(
         allocator.free(result.stderr);
     }
 
-    const resObj = qjs.JS_NewObject(ctx);
+    const execResult = qjs.JS_NewObject(ctx);
 
-    _ = qjs.JS_SetPropertyStr(ctx, resObj, "stdout", qjs.JS_NewStringLen(ctx, result.stdout.ptr, result.stdout.len));
-    _ = qjs.JS_SetPropertyStr(ctx, resObj, "stderr", qjs.JS_NewStringLen(ctx, result.stderr.ptr, result.stderr.len));
+    _ = qjs.JS_SetPropertyStr(ctx, execResult, "stdout", qjs.JS_NewStringLen(ctx, result.stdout.ptr, result.stdout.len));
+    _ = qjs.JS_SetPropertyStr(ctx, execResult, "stderr", qjs.JS_NewStringLen(ctx, result.stderr.ptr, result.stderr.len));
 
-    return resObj;
+    return execResult;
+}
+
+fn readFileSync(
+    ctx: *qjs.JSContext,
+    thisVal: qjs.JSValueConst,
+    argc: c_int,
+    argv: *[]qjs.JSValueConst,
+) callconv(.c) qjs.JSValue {
+    _ = thisVal;
+    if (argc < 1) {
+        return qjs.JS_NULL;
+    }
+
+    const filePathString = qjs.JS_ToCStringLen2(
+        ctx,
+        null,
+        argv[0],
+        0,
+    ) orelse {
+        return qjs.JS_NULL;
+    };
+    defer qjs.JS_FreeCString(ctx, filePathString);
+
+    const file = cwd.readFileAlloc(io, filePathString, allocator, constants.GB) catch {
+        return qjs.JS_NULL;
+    };
+
+    defer allocator.free(file);
+    return qjs.JS_NewStringLen(ctx, file, file.len);
 }
 
 fn gpickOsInit(ctx: *qjs.JSContext, m: *qjs.JSModuleDef) callconv(.c) c_int {
@@ -100,7 +130,9 @@ fn gpickOsInit(ctx: *qjs.JSContext, m: *qjs.JSModuleDef) callconv(.c) c_int {
 export fn initGpickOsModule(ctx: *qjs.JSContext, module_name: [*c]const u8) callconv(.c) ?*qjs.JSModuleDef {
     threaded = .init(allocator, .{});
     defer threaded.deinit();
+
     io = threaded.io();
+    cwd = .cwd();
 
     const m = qjs.JS_NewCModule(ctx, module_name, gpickOsInit);
 
