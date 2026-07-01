@@ -37,7 +37,22 @@ pub const JS_PROP_WRITABLE: u8 = (1 << 0);
 pub const JS_PROP_CONFIGURABLE: u8 = (1 << 1);
 pub const JS_DEF_ITEMS: u8 = 0;
 pub const JS_DEF_CFUNC: u8 = 1;
-pub const JS_CFUNC_generic: u8 = 0;
+
+pub const JSCFunctionEnum = enum(u8) {
+    JS_CFUNC_generic,
+    JS_CFUNC_generic_magic,
+    JS_CFUNC_constructor,
+    JS_CFUNC_constructor_magic,
+    JS_CFUNC_constructor_or_func,
+    JS_CFUNC_constructor_or_func_magic,
+    JS_CFUNC_f_f,
+    JS_CFUNC_f_f_f,
+    JS_CFUNC_getter,
+    JS_CFUNC_setter,
+    JS_CFUNC_getter_magic,
+    JS_CFUNC_setter_magic,
+    JS_CFUNC_iterator_next,
+};
 
 pub const JS_TAG_NULL: i64 = -2;
 
@@ -54,9 +69,12 @@ pub extern "c" fn JS_GetPropertyUint32(ctx: *JSContext, val: JSValueConst, idx: 
 pub extern "c" fn JS_NewObject(ctx: *JSContext) JSValue;
 pub extern "c" fn JS_NewStringLen(ctx: *JSContext, str: [*c]const u8, len: usize) JSValue;
 pub extern "c" fn JS_SetPropertyStr(ctx: *JSContext, this_val: JSValueConst, prop: [*c]const u8, val: JSValue) c_int;
-pub extern "c" fn JS_SetModuleExportList(ctx: *JSContext, m: *JSModuleDef, tab: [*c]const JSCFunctionListEntry, len: c_int) c_int;
+
+pub extern "c" fn JS_NewCFunction2(ctx: *JSContext, func: *JSCFunction, name: [*c]const u8, length: c_int, cproto: JSCFunctionEnum, magic: c_int) JSValue;
+
 pub extern "c" fn JS_NewCModule(ctx: *JSContext, name_str: [*c]const u8, init_func: *const fn (ctx: *JSContext, m: *JSModuleDef) callconv(.c) c_int) *JSModuleDef;
-pub extern "c" fn JS_AddModuleExportList(ctx: *JSContext, m: ?*JSModuleDef, tab: [*c]const JSCFunctionListEntry, len: c_int) c_int;
+pub extern "c" fn JS_SetModuleExport(ctx: *JSContext, m: *JSModuleDef, export_name: [*c]u8, val: JSValue) c_int;
+pub extern "c" fn JS_AddModuleExport(ctx: *JSContext, m: *JSModuleDef, name_str: [*c]const u8) c_int;
 
 pub extern "c" fn JS_ToUint32_wrapper(ctx: *JSContext, pres: *u32, val: JSValueConst) c_int;
 pub extern "c" fn JS_ToCString_wrapper(ctx: *JSContext, val: JSValueConst) [*c]const u8;
