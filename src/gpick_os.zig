@@ -10,7 +10,7 @@ var threaded: std.Io.Threaded = undefined;
 var io: std.Io = undefined;
 var cwd: std.Io.Dir = undefined;
 
-fn gpickOsExec(
+fn exec(
     ctx: *qjs.JSContext,
     thisVal: qjs.JSValueConst,
     argc: c_int,
@@ -106,6 +106,7 @@ fn readFileSync(
     ) orelse {
         return qjs.JS_NULL;
     };
+
     defer qjs.JS_FreeCString(ctx, filePathString);
 
     const file = cwd.readFileAlloc(io, filePathString, allocator, constants.GB) catch {
@@ -119,8 +120,17 @@ fn readFileSync(
 fn gpickOsInit(ctx: *qjs.JSContext, m: *qjs.JSModuleDef) callconv(.c) c_int {
     _ = qjs.JS_SetModuleExport(ctx, m, "exec", qjs.JS_NewCFunction2(
         ctx,
-        gpickOsExec,
+        exec,
         "exec",
+        1,
+        .JS_CFUNC_generic,
+        0,
+    ));
+
+    _ = qjs.JS_SetModuleExport(ctx, m, "readFileSync", qjs.JS_NewCFunction2(
+        ctx,
+        readFileSync,
+        "readFileSync",
         1,
         .JS_CFUNC_generic,
         0,
@@ -132,10 +142,18 @@ export fn initGpickOsModule(ctx: *qjs.JSContext, module_name: [*c]const u8) call
     defer threaded.deinit();
 
     io = threaded.io();
+
     cwd = .cwd();
 
-    const m = qjs.JS_NewCModule(ctx, module_name, gpickOsInit);
+    const module = qjs.JS_NewCModule(ctx, module_name, gpickOsInit);
 
-    _ = qjs.JS_AddModuleExport(ctx, m, "exec");
-    return m;
+    if (module == null) {
+        return null;
+    }
+
+    _ = qjs.JS_AddModuleExport(ctx, module, "exec");
+
+    _ = qjs.JS_AddModuleExport(ctx, module, "readFileSync");
+
+    return module;
 }
