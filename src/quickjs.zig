@@ -69,12 +69,12 @@ pub extern "c" fn JS_GetPropertyUint32(ctx: *JSContext, val: JSValueConst, idx: 
 pub extern "c" fn JS_NewObject(ctx: *JSContext) JSValue;
 pub extern "c" fn JS_NewStringLen(ctx: *JSContext, str: [*c]const u8, len: usize) JSValue;
 pub extern "c" fn JS_SetPropertyStr(ctx: *JSContext, this_val: JSValueConst, prop: [*c]const u8, val: JSValue) c_int;
-pub extern "c" fn JS_NewCFunction2(ctx: *JSContext, func: *JSCFunction, name: [*c]const u8, length: c_int, cproto: JSCFunctionEnum, magic: c_int) JSValue;
+pub extern "c" fn JS_NewCFunction2(ctx: *JSContext, func: JSCFunction, name: [*c]const u8, length: c_int, cproto: JSCFunctionEnum, magic: c_int) JSValue;
 pub extern "c" fn JS_ToCStringLen2(ctx: *JSContext, plen: ?*usize, val1: JSValueConst, cesu8: c_int) [*c]const u8;
 
-pub extern "c" fn JS_NewCModule(ctx: *JSContext, name_str: [*c]const u8, init_func: *const fn (ctx: *JSContext, m: *JSModuleDef) callconv(.c) c_int) *JSModuleDef;
-pub extern "c" fn JS_SetModuleExport(ctx: *JSContext, m: *JSModuleDef, export_name: [*c]u8, val: JSValue) c_int;
-pub extern "c" fn JS_AddModuleExport(ctx: *JSContext, m: *JSModuleDef, name_str: [*c]const u8) c_int;
+pub extern "c" fn JS_NewCModule(ctx: *JSContext, name_str: [*c]const u8, init_func: *const fn (ctx: *JSContext, m: *JSModuleDef) callconv(.c) c_int) ?*JSModuleDef;
+pub extern "c" fn JS_SetModuleExport(ctx: *JSContext, m: ?*JSModuleDef, export_name: [*c]const u8, val: JSValue) c_int;
+pub extern "c" fn JS_AddModuleExport(ctx: *JSContext, m: ?*JSModuleDef, name_str: [*c]const u8) c_int;
 
 pub extern "c" fn JS_ToUint32_wrapper(ctx: *JSContext, pres: *u32, val: JSValueConst) c_int;
 pub extern "c" fn JS_FreeValue_wrapper(ctx: *JSContext, v: JSValue) void;
