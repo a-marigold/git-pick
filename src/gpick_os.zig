@@ -59,11 +59,11 @@ fn gpickOsExec(
                 return qjs.JS_NULL;
             };
 
-            const zigStr = std.mem.span(argStr);
-
-            zigCmd.append(allocator, zigStr) catch {
+            zigCmd.append(allocator, std.mem.span(argStr)) catch {
                 return qjs.JS_NULL;
             };
+        } else {
+            return qjs.JS_NULL;
         }
     }
 
