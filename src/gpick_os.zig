@@ -85,43 +85,24 @@ fn gpickOsExec(
     return resObj;
 }
 
-const gpickOsFuncs = [_]qjs.JSCFunctionListEntry{
-    .{
-        .name = "exec",
-        .prop_flags = qjs.JS_PROP_WRITABLE | qjs.JS_PROP_CONFIGURABLE,
-
-        .def_type = qjs.JS_DEF_CFUNC,
-
-        .magic = 0,
-
-        .u = .{
-            .func = .{
-                .length = 2,
-                .cproto = qjs.JS_CFUNC_generic,
-                .cfunc = .{ .generic = gpickOsExec },
-            },
-        },
-    },
-};
-
 fn gpickOsInit(ctx: *qjs.JSContext, m: *qjs.JSModuleDef) callconv(.c) c_int {
-    return qjs.JS_SetModuleExportList(
+    _ = qjs.JS_SetModuleExport(ctx, m, "exec", qjs.JS_NewCFunction2(
         ctx,
-        m,
-        &gpickOsFuncs,
-        gpickOsFuncs.len,
-    );
+        gpickOsExec,
+        "exec",
+        1,
+        .JS_CFUNC_generic,
+        0,
+    ));
 }
 
 export fn initGpickOsModule(ctx: *qjs.JSContext, module_name: [*c]const u8) callconv(.c) ?*qjs.JSModuleDef {
     threaded = .init(allocator, .{});
     defer threaded.deinit();
-
     io = threaded.io();
 
     const m = qjs.JS_NewCModule(ctx, module_name, gpickOsInit);
 
-    _ = qjs.JS_AddModuleExportList(ctx, m, &gpickOsFuncs, gpickOsFuncs.len);
-
+    _ = qjs.JS_AddModuleExport(ctx, m, "exec");
     return m;
 }
