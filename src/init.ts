@@ -9,7 +9,7 @@ import { spawnCmdErr, spawnCmdOut } from './utils';
 
 export const init = async (argv: string[]): Promise<void> => {
 	if (argv.length === 1) {
-		console.log(help());
+		print(help());
 
 		exit(2);
 	}
@@ -20,7 +20,7 @@ export const init = async (argv: string[]): Promise<void> => {
 		const gitStatusError = gitStatusResult[1];
 
 		if (gitStatusError) {
-			console.log(gitStatusError);
+			print(gitStatusError);
 
 			exit(1);
 		}
@@ -32,7 +32,7 @@ export const init = async (argv: string[]): Promise<void> => {
 		const gitDirError = gitDirResult[1];
 
 		if (gitDirError) {
-			console.log(gitDirError);
+			print(gitDirError);
 
 			exit(1);
 		}
@@ -43,7 +43,7 @@ export const init = async (argv: string[]): Promise<void> => {
 			paths,
 		);
 
-		console.log(output);
+		print(output);
 
 		exit(0);
 	}
@@ -54,7 +54,7 @@ export const init = async (argv: string[]): Promise<void> => {
 		const gitDirError = gitDirResult[1];
 
 		if (gitDirError) {
-			console.log(gitDirError);
+			print(gitDirError);
 
 			exit(1);
 		} else {
@@ -65,14 +65,14 @@ export const init = async (argv: string[]): Promise<void> => {
 			const { cmd, error: addError } = add(argv, 2, paths);
 
 			if (addError) {
-				console.log(addError);
+				print(addError);
 
 				exit(2);
 			} else {
 				const gitAddError = (await spawnCmdErr(cmd))[0];
 
 				if (gitAddError) {
-					console.log(gitAddError);
+					print(gitAddError);
 
 					exit(1);
 				} else {
@@ -83,12 +83,12 @@ export const init = async (argv: string[]): Promise<void> => {
 	}
 
 	if (command === '-h') {
-		console.log(help());
+		print(help());
 
 		exit(0);
 	}
 
-	console.log('Unknown command.\n\n' + help());
+	print('Unknown command.\n\n' + help());
 
 	exit(2);
 };
