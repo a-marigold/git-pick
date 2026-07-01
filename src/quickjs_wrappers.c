@@ -7,9 +7,9 @@ int JS_ToUint32_wrapper(JSContext *ctx, uint32_t *pres, JSValueConst val) {
     return JS_ToUint32(ctx, pres, val);
 }
 
-const char *JS_ToCString_wrapper(JSContext *ctx, JSValueConst val1) {
-    return JS_ToCString(ctx, val1);
-}
+
+
+
 
 
 

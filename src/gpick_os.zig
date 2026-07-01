@@ -50,10 +50,11 @@ fn gpickOsExec(
     var cmdIndex: u32 = 0;
 
     while (cmdIndex < cmdLength) : (cmdIndex += 1) {
-        const argVal = qjs.JS_GetPropertyUint32(ctx, cmd, cmdIndex);
-        defer qjs.JS_FreeValue_wrapper(ctx, argVal);
+        const argValue = qjs.JS_GetPropertyUint32(ctx, cmd, cmdIndex);
+        defer qjs.JS_FreeValue_wrapper(ctx, argValue);
 
-        const argStr = qjs.JS_ToCString_wrapper(ctx, argVal);
+        const argStr = qjs.JS_ToCStringLen2(ctx, null, argValue, 0);
+
         if (argStr != null) {
             qjsStrings.append(allocator, argStr) catch {
                 return qjs.JS_NULL;
